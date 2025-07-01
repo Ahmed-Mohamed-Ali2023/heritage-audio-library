@@ -1,7 +1,7 @@
 import streamlit as st
 import os
 
-# ---------- عنوان التطبيق ----------
+# ---------- إعداد واجهة التطبيق ----------
 st.set_page_config(page_title="📚 مكتبة التراث الصوتية", layout="centered")
 st.title("📚 مكتبة التراث الصوتية")
 st.write("🎧 استمع إلى نصوص التراث العربي والإسلامي بصوت واضح، وابحث حسب العنوان بسهولة.")
@@ -22,16 +22,13 @@ else:
     if query:
         query = query.strip().lower()
         matches = [(title, path) for title, path in data if query in title.lower()]
+        if matches:
+            for title, path in matches:
+                st.subheader(f"📖 {title}")
+                with open(path, 'rb') as audio_file:
+                    audio_bytes = audio_file.read()
+                    st.audio(audio_bytes, format='audio/mp3')
+        else:
+            st.info("❌ لا توجد نتائج مطابقة، حاول بكلمة أخرى.")
     else:
-        matches = data  # عرض جميع الملفات في حال عدم كتابة كلمة مفتاحية
-
-    # ---------- عرض النتائج ----------
-    if matches:
-        for title, path in matches:
-            st.subheader(f"📖 {title}")
-            audio_file = open(path, 'rb')
-            audio_bytes = audio_file.read()
-            st.audio(audio_bytes, format='audio/mp3')
-            audio_file.close()
-    else:
-        st.info("❌ لا توجد نتائج مطابقة، حاول بكلمة أخرى.")
+        st.info("🪐 من فضلك أدخل كلمة مفتاحية في مربع البحث لعرض الملفات الصوتية.")
