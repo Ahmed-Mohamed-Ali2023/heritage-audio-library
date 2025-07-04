@@ -42,7 +42,11 @@ with col_select:
     st.markdown("## 🔍 البحث والاختيار")
 
     search_col1, search_col2 = st.columns([3, 1])
-    search_query = search_col1.text_input("🔎 ابحث في العنوان أو المؤلف:", label_visibility="collapsed", placeholder="اكتب كلمة للبحث...")
+    search_query = search_col1.text_input(
+        "🔎 ابحث في العنوان أو المؤلف:",
+        label_visibility="collapsed",
+        placeholder="اكتب كلمة للبحث..."
+    )
     search_button = search_col2.button("🔍 بحث")
 
     if "filtered_data" not in st.session_state:
@@ -65,7 +69,7 @@ with col_select:
     titles_list = filtered_data['Title'].tolist()
     selected_title = st.selectbox("📑 اختر الوثيقة:", ["-- اختر وثيقة --"] + titles_list)
 
-# ========== عمود عرض النتائج مع الخلفية ==========
+# ========== عمود عرض النتائج بخلفية ولون خط أسود ==========
 with col_content:
     if selected_title != "-- اختر وثيقة --":
         row = filtered_data[filtered_data['Title'] == selected_title].iloc[0]
@@ -73,23 +77,24 @@ with col_content:
         st.markdown(
             f"""
             <div style='
-                background-color: #F1F8E9;  /* لون أخضر فاتح مريح، يمكن تغييره */
+                background-color: #F1F8E9;  /* خلفية أخضر فاتح */
+                color: #000000;              /* نص أسود */
                 padding: 20px;
                 border-radius: 12px;
-                border: 2px solid #C5E1A5;  /* لون الإطار */
+                border: 2px solid #C5E1A5;  /* إطار */
                 box-shadow: 0 4px 12px rgba(0,0,0,0.05);
                 text-align: right;
                 direction: rtl;
                 font-family: "Cairo", sans-serif;
             '>
                 <img src="{row['Image']}" width="300" style="display: block; margin: auto; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 15px;">
-                <h2 style="text-align: center;">📖 {row['Title']}</h2>
+                <h2 style="text-align: center; color: #000000;">📖 {row['Title']}</h2>
                 <p><b>✍️ المؤلف:</b> {row['Author']}</p>
                 <p><b>📅 سنة النشر:</b> {row['Year']}</p>
                 <p><b>🏢 الناشر:</b> {row['Publisher']}</p>
                 <p><b>🏷️ المجال:</b> {row['Field']}</p>
                 <p><b>📄 عدد الصفحات:</b> {row['Pages']}</p>
-                <h3>📜 النص:</h3>
+                <h3 style="color: #000000;">📜 النص:</h3>
                 <p>{row['Text'][:1500] + "..." if len(row['Text']) > 1500 else row['Text']}</p>
             </div>
             """,
