@@ -3,7 +3,10 @@ import pandas as pd
 from gtts import gTTS
 import os
 
-# إعداد الخط (Cairo)
+# إعداد الصفحة
+st.set_page_config(page_title="📚 مكتبة التراث الصوتية", layout="wide")
+
+# إعداد الخطوط والألوان
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
@@ -12,8 +15,21 @@ st.markdown("""
         direction: rtl;
         text-align: right;
     }
+    .title {
+        color: #1565C0;
+        font-size: 32px;
+        font-weight: 700;
+        text-align: center;
+    }
+    .card {
+        background-color: #ffffff;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        margin-top: 10px;
+    }
     .stButton button {
-        background-color: #1E88E5;
+        background-color: #1565C0;
         color: white;
         border-radius: 8px;
         padding: 0.5em 1em;
@@ -21,14 +37,14 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-st.set_page_config(page_title="📚 مكتبة التراث الصوتية", layout="wide")
-st.title("📚 مكتبة التراث الصوتية")
+# العنوان الرئيسي
+st.markdown("<p class='title'>📚 مكتبة التراث الصوتية</p>", unsafe_allow_html=True)
 st.markdown("### استعرض الوثائق بسهولة واستمع للنص مباشرة.")
 
-# رابط الملف
+# رابط CSV من GitHub
 csv_url = "https://raw.githubusercontent.com/Ahmed-Mohamed-Ali2023/heritage-audio-library/refs/heads/main/heritage_texts.csv"
 
-# قراءة البيانات
+# تحميل البيانات
 with st.spinner("📥 يتم تحميل البيانات من GitHub..."):
     try:
         data = pd.read_csv(csv_url)
@@ -53,14 +69,15 @@ with st.spinner("📥 تجهيز الملفات الصوتية..."):
             tts.save(filename)
 st.success("✅ الملفات الصوتية جاهزة.")
 
-# تقسيم الأعمدة مع ألوان الخلفية
-col_content, col_select = st.columns([3, 1], gap="large")
+# تقسيم الأعمدة: البحث (يمين) والنتائج (يسار)
+col_select, col_content = st.columns([1, 3], gap="large")
 
-# ==== عمود البحث بخلفية مميزة ====
+# ==== عمود البحث على اليمين ====
 with col_select:
     st.markdown("""
         <div style='background-color: #E3F2FD; padding: 20px; border-radius: 10px;'>
     """, unsafe_allow_html=True)
+
     st.markdown("## 🔍 البحث والاختيار")
 
     search_col1, search_col2 = st.columns([3, 1])
@@ -85,40 +102,34 @@ with col_select:
     filtered_data = st.session_state.filtered_data
     titles_list = filtered_data['Title'].tolist()
     selected_title = st.selectbox("📑 اختر الوثيقة:", ["-- اختر وثيقة --"] + titles_list)
+
     st.markdown("</div>", unsafe_allow_html=True)
 
-# ==== عمود النتائج بخلفية هادئة ====
+# ==== عمود النتائج على اليسار ====
 with col_content:
-    st.markdown("""
-        <div style='background-color: #FAFAFA; padding: 20px; border-radius: 10px;'>
-    """, unsafe_allow_html=True)
-
     if selected_title != "-- اختر وثيقة --":
         row = filtered_data[filtered_data['Title'] == selected_title].iloc[0]
-        st.markdown(
-            f"""
-            <div style='text-align: right; direction: rtl; font-family: "Cairo", sans-serif;'>
-                <img src="{row['Image']}" width="300" style="display: block; margin: auto; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-                <h2 style="text-align: center; color: #1565C0;">📖 {row['Title']}</h2>
+        safe_title = "".join(c for c in row['Title'] if c.isalnum() or c in (' ', '_', '-')).rstrip()
+        audio_file = f"audio_files/{safe_title}.mp3"
+
+        # بطاقة عرض أنيقة
+        st.markdown(f"""
+            <div class='card'>
+                <img src="{row['Image']}" width="100%" style="border-radius: 10px; max-height: 300px; object-fit: cover; margin-bottom: 10px;">
+                <h2 style="color:#0D47A1; text-align:center;">📖 {row['Title']}</h2>
                 <p><b>✍️ المؤلف:</b> {row['Author']}</p>
                 <p><b>📅 سنة النشر:</b> {row['Year']}</p>
                 <p><b>🏢 الناشر:</b> {row['Publisher']}</p>
                 <p><b>🏷️ المجال:</b> {row['Field']}</p>
                 <p><b>📄 عدد الصفحات:</b> {row['Pages']}</p>
-                <h3>📜 النص:</h3>
+                <h4>📜 النص:</h4>
                 <p>{row['Text'][:1500] + "..." if len(row['Text']) > 1500 else row['Text']}</p>
             </div>
-            """,
-            unsafe_allow_html=True
-        )
+        """, unsafe_allow_html=True)
 
-        safe_title = "".join(c for c in row['Title'] if c.isalnum() or c in (' ', '_', '-')).rstrip()
-        audio_file = f"audio_files/{safe_title}.mp3"
         if os.path.exists(audio_file):
             st.audio(audio_file, format="audio/mp3")
         else:
             st.warning("⚠️ الملف الصوتي غير متوفر.")
     else:
         st.info("📑 اختر وثيقة من القائمة اليمنى للاطلاع على التفاصيل.")
-
-    st.markdown("</div>", unsafe_allow_html=True)
