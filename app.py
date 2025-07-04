@@ -3,7 +3,21 @@ import pandas as pd
 from gtts import gTTS
 import os
 
+# إعداد الصفحة مع خلفية مناسبة
 st.set_page_config(page_title="📚 مكتبة التراث الصوتية", layout="wide")
+
+# إضافة لون خلفية شامل للصفحة
+st.markdown(
+    """
+    <style>
+    body {
+        background-color: #F4F1EE; /* لون بيج فاتح مريح للعين */
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 st.title("📚 مكتبة التراث الصوتية")
 st.markdown("### استعرض الوثائق بسهولة واستمع للنص مباشرة.")
 
@@ -42,7 +56,11 @@ with col_select:
     st.markdown("## 🔍 البحث والاختيار")
 
     search_col1, search_col2 = st.columns([3, 1])
-    search_query = search_col1.text_input("🔎 ابحث في العنوان أو المؤلف:", label_visibility="collapsed", placeholder="اكتب كلمة للبحث...")
+    search_query = search_col1.text_input(
+        "🔎 ابحث في العنوان أو المؤلف:",
+        label_visibility="collapsed",
+        placeholder="اكتب كلمة للبحث..."
+    )
     search_button = search_col2.button("🔍 بحث")
 
     if "filtered_data" not in st.session_state:
@@ -65,7 +83,7 @@ with col_select:
     titles_list = filtered_data['Title'].tolist()
     selected_title = st.selectbox("📑 اختر الوثيقة:", ["-- اختر وثيقة --"] + titles_list)
 
-# ========== عمود عرض النتائج مع الخلفية ==========
+# ========== عمود عرض النتائج مع خلفية غامقة ==========
 with col_content:
     if selected_title != "-- اختر وثيقة --":
         row = filtered_data[filtered_data['Title'] == selected_title].iloc[0]
@@ -73,16 +91,17 @@ with col_content:
         st.markdown(
             f"""
             <div style='
-                background-color: #F1F8E9;  /* لون أخضر فاتح مريح، يمكن تغييره */
+                background-color: #424242;  /* لون غامق أنيق */
+                color: #FFFFFF;              /* لون النص أبيض للوضوح */
                 padding: 20px;
                 border-radius: 12px;
-                border: 2px solid #C5E1A5;  /* لون الإطار */
-                box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+                border: 2px solid #757575;   /* لون الإطار */
+                box-shadow: 0 4px 12px rgba(0,0,0,0.2);
                 text-align: right;
                 direction: rtl;
                 font-family: "Cairo", sans-serif;
             '>
-                <img src="{row['Image']}" width="300" style="display: block; margin: auto; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 15px;">
+                <img src="{row['Image']}" width="300" style="display: block; margin: auto; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); margin-bottom: 15px;">
                 <h2 style="text-align: center;">📖 {row['Title']}</h2>
                 <p><b>✍️ المؤلف:</b> {row['Author']}</p>
                 <p><b>📅 سنة النشر:</b> {row['Year']}</p>
