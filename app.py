@@ -1,70 +1,60 @@
-# تحتاج تثبيت المكتبات:
-# !pip install streamlit pandas gtts playsound
-
 import streamlit as st
 import pandas as pd
 from gtts import gTTS
 import os
-from io import BytesIO
 
-# تحميل الملف عبر Streamlit
-uploaded_file = st.file_uploader("✅ ارفع ملف CSV يحتوي على بيانات الوثائق", type=["csv"])
+st.set_page_config(page_title="📚 مكتبة التراث الصوتية", layout="wide")
+
+st.title("📚 مكتبة التراث الصوتية")
+st.markdown("### 🕋 مكتبة لتحويل محتوى الوثائق إلى صوت والبحث في العنوان والمؤلف والاستماع مباشرة")
+
+# رفع ملف CSV
+uploaded_file = st.file_uploader("📂 قم برفع ملف CSV يحتوي على الأعمدة (Title, Text, Author, Year, Image, Pages, Publisher, Field)", type=['csv'])
+
 if uploaded_file:
     data = pd.read_csv(uploaded_file)
 
-    # إنشاء مجلد صوتيات إذا لم يكن موجودًا
-    if not os.path.exists("audio_files"):
-        os.makedirs("audio_files")
+    if not os.path.exists('audio_files'):
+        os.makedirs('audio_files')
 
-    # توليد ملفات الصوت (مرة واحدة فقط)
-    for idx, row in data.iterrows():
-        title = row['Title']
-        text = str(row['Text'])[:3000]
-        safe_title = "".join(c for c in title if c.isalnum() or c in (' ', '_', '-')).rstrip()
-        audio_path = f"audio_files/{safe_title}.mp3"
-        if not os.path.exists(audio_path):
-            tts = gTTS(text, lang='ar')
-            tts.save(audio_path)
+    with st.spinner("📥 يتم تجهيز الملفات الصوتية..."):
+        for idx, row in data.iterrows():
+            title = row['Title']
+            text = str(row['Text'])[:3000]
+            safe_title = "".join(c for c in title if c.isalnum() or c in (' ', '_', '-')).rstrip()
+            filename = f"audio_files/{safe_title}.mp3"
+            if not os.path.exists(filename):
+                tts = gTTS(text, lang='ar')
+                tts.save(filename)
 
-    st.title("📚 مكتبة التراث الصوتية")
-    st.write("اكتب كلمة البحث ثم اضغط زر البحث، اختر وثيقة لعرض التفاصيل والاستماع.")
+    st.success("✅ تم تجهيز الملفات الصوتية")
 
-    # مربع البحث
-    query = st.text_input("🔍 كلمة البحث (عنوان أو مؤلف)")
+    # البحث
+    query = st.text_input("🔍 أدخل كلمة للبحث في العنوان أو المؤلف:")
 
-    if st.button("🔎 بحث"):
-        if query.strip() == "":
-            st.warning("الرجاء إدخال كلمة للبحث")
+    if query:
+        query = query.strip().lower()
+        results = []
+        for i, row in data.iterrows():
+            if query in str(row['Title']).lower() or query in str(row['Author']).lower():
+                results.append((i, row))
+
+        if results:
+            st.markdown("### 📝 النتائج:")
+            for idx, row in results:
+                with st.expander(f"📖 {row['Title']}"):
+                    st.image(row['Image'], use_column_width=True)
+                    st.markdown(f"**✍️ المؤلف:** {row['Author']}")
+                    st.markdown(f"**📅 سنة النشر:** {row['Year']}")
+                    st.markdown(f"**🏷️ المجال:** {row['Field']}")
+                    st.markdown(f"**🏢 الناشر:** {row['Publisher']}")
+                    st.markdown(f"**📄 عدد الصفحات:** {row['Pages']}")
+                    audio_file = f"audio_files/{''.join(c for c in row['Title'] if c.isalnum() or c in (' ', '_', '-')).rstrip()}.mp3"
+                    if os.path.exists(audio_file):
+                        st.audio(audio_file, format="audio/mp3")
+                    else:
+                        st.warning("⚠️ الملف الصوتي غير متوفر.")
         else:
-            query_lower = query.strip().lower()
-            results = []
-            for i, row in data.iterrows():
-                if query_lower in str(row['Title']).lower() or query_lower in str(row['Author']).lower():
-                    results.append((i, row['Title']))
-
-            if not results:
-                st.error("❌ لا توجد نتائج للبحث")
-            else:
-                # عرض قائمة بالنتائج
-                titles = [title for idx, title in results]
-                selected_title = st.selectbox("📝 اختر عنوان الوثيقة", titles)
-
-                if selected_title:
-                    row = data[data['Title'] == selected_title].iloc[0]
-                    st.markdown(f"""
-                    <div style="text-align: right; direction: rtl; font-family: 'Cairo', sans-serif; border:1px solid #ccc; padding:15px;">
-                        <h3>📜 {row['Title']}</h3>
-                        <p><b>المؤلف:</b> {row['Author']}</p>
-                        <p><b>عدد الصفحات:</b> {row['Pages']}</p>
-                        <p><b>الناشر:</b> {row['Publisher']}</p>
-                        <p><b>سنة النشر:</b> {row['Year']}</p>
-                        <p><b>المجال:</b> {row['Field']}</p>
-                        <img src="{row['Image']}" alt="صورة الوثيقة" style="max-width:300px; margin-top:10px;">
-                    </div>
-                    """, unsafe_allow_html=True)
-
-                    # تشغيل الصوت
-                    safe_title = "".join(c for c in row['Title'] if c.isalnum() or c in (' ', '_', '-')).rstrip()
-                    audio_path = f"audio_files/{safe_title}.mp3"
-                    audio_file = open(audio_path, "rb").read()
-                    st.audio(audio_file, format="audio/mp3")
+            st.info("❌ لم يتم العثور على نتائج.")
+else:
+    st.info("📄 يرجى رفع ملف CSV أولًا لبدء الاستخدام.")
