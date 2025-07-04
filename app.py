@@ -3,32 +3,14 @@ import pandas as pd
 from gtts import gTTS
 import os
 
-# إعداد الخط (Cairo)
-st.markdown("""
-    <style>
-    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
-    html, body, [class*="css"] {
-        font-family: 'Cairo', sans-serif;
-        direction: rtl;
-        text-align: right;
-    }
-    .stButton button {
-        background-color: #1E88E5;
-        color: white;
-        border-radius: 8px;
-        padding: 0.5em 1em;
-    }
-    </style>
-""", unsafe_allow_html=True)
-
 st.set_page_config(page_title="📚 مكتبة التراث الصوتية", layout="wide")
 st.title("📚 مكتبة التراث الصوتية")
 st.markdown("### استعرض الوثائق بسهولة واستمع للنص مباشرة.")
 
-# رابط الملف
+# ========= رابط الملف من GitHub بصيغة RAW ==========
 csv_url = "https://raw.githubusercontent.com/Ahmed-Mohamed-Ali2023/heritage-audio-library/refs/heads/main/heritage_texts.csv"
 
-# قراءة البيانات
+# ========== قراءة الملف ==========
 with st.spinner("📥 يتم تحميل البيانات من GitHub..."):
     try:
         data = pd.read_csv(csv_url)
@@ -37,11 +19,11 @@ with st.spinner("📥 يتم تحميل البيانات من GitHub..."):
         st.error(f"❌ حدث خطأ أثناء تحميل البيانات: {e}")
         st.stop()
 
-# إنشاء مجلد الملفات الصوتية
+# ========== إنشاء مجلد الملفات الصوتية ==========
 if not os.path.exists('audio_files'):
     os.makedirs('audio_files')
 
-# توليد الملفات الصوتية
+# ========== توليد الملفات الصوتية إن لم تكن موجودة ==========
 with st.spinner("📥 تجهيز الملفات الصوتية..."):
     for idx, row in data.iterrows():
         title = row['Title']
@@ -53,14 +35,10 @@ with st.spinner("📥 تجهيز الملفات الصوتية..."):
             tts.save(filename)
 st.success("✅ الملفات الصوتية جاهزة.")
 
-# تقسيم الأعمدة مع ألوان الخلفية
+# ========== تقسيم الأعمدة ==========
 col_content, col_select = st.columns([3, 1], gap="large")
 
-# ==== عمود البحث بخلفية مميزة ====
 with col_select:
-    st.markdown("""
-        <div style='background-color: #E3F2FD; padding: 20px; border-radius: 10px;'>
-    """, unsafe_allow_html=True)
     st.markdown("## 🔍 البحث والاختيار")
 
     search_col1, search_col2 = st.columns([3, 1])
@@ -83,23 +61,19 @@ with col_select:
             st.info("ℹ️ لم يتم إدخال كلمة بحث، يتم عرض جميع الوثائق.")
 
     filtered_data = st.session_state.filtered_data
+
     titles_list = filtered_data['Title'].tolist()
     selected_title = st.selectbox("📑 اختر الوثيقة:", ["-- اختر وثيقة --"] + titles_list)
-    st.markdown("</div>", unsafe_allow_html=True)
 
-# ==== عمود النتائج بخلفية هادئة ====
 with col_content:
-    st.markdown("""
-        <div style='background-color: #FAFAFA; padding: 20px; border-radius: 10px;'>
-    """, unsafe_allow_html=True)
-
     if selected_title != "-- اختر وثيقة --":
         row = filtered_data[filtered_data['Title'] == selected_title].iloc[0]
+
         st.markdown(
             f"""
             <div style='text-align: right; direction: rtl; font-family: "Cairo", sans-serif;'>
                 <img src="{row['Image']}" width="300" style="display: block; margin: auto; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-                <h2 style="text-align: center; color: #1565C0;">📖 {row['Title']}</h2>
+                <h2 style="text-align: center;">📖 {row['Title']}</h2>
                 <p><b>✍️ المؤلف:</b> {row['Author']}</p>
                 <p><b>📅 سنة النشر:</b> {row['Year']}</p>
                 <p><b>🏢 الناشر:</b> {row['Publisher']}</p>
@@ -120,5 +94,3 @@ with col_content:
             st.warning("⚠️ الملف الصوتي غير متوفر.")
     else:
         st.info("📑 اختر وثيقة من القائمة اليمنى للاطلاع على التفاصيل.")
-
-    st.markdown("</div>", unsafe_allow_html=True)
