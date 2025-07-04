@@ -8,7 +8,7 @@ st.title("📚 مكتبة التراث الصوتية")
 st.markdown("### استعرض الوثائق بسهولة واستمع للنص مباشرة.")
 
 # ========= رابط الملف من GitHub بصيغة RAW ==========
-csv_url = "https://raw.githubusercontent.com/اسم_المستخدم/اسم_المستودع/branch/المسار/heritage_texts.csv"
+csv_url = "https://raw.githubusercontent.com/Ahmed-Mohamed-Ali2023/heritage-audio-library/refs/heads/main/heritage_texts.csv"
 
 # ========== قراءة الملف ==========
 with st.spinner("📥 يتم تحميل البيانات من GitHub..."):
