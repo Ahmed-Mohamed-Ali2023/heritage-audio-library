@@ -37,7 +37,7 @@ if uploaded_file:
 
         # مربع البحث + زر البحث الصغير
         search_col1, search_col2 = st.columns([3, 1])
-        search_query = search_col1.text_input("🔎 ابحث في العنوان أو المؤلف:", label_visibility="collapsed", placeholder="ابحث هنا...")
+        search_query = search_col1.text_input("🔎 ابحث في العنوان أو المؤلف:", label_visibility="collapsed", placeholder="اكتب كلمة للبحث...")
         search_button = search_col2.button("🔍 بحث")
 
         # عند الضغط على زر البحث
@@ -58,14 +58,6 @@ if uploaded_file:
 
         filtered_data = st.session_state.filtered_data
 
-        # عرض قائمة الوثائق أسفل البحث مباشرة
-        if not filtered_data.empty:
-            with st.expander("📄 الوثائق المتاحة بعد البحث (انقر للاطلاع):", expanded=True):
-                for idx, row in filtered_data.iterrows():
-                    st.markdown(f"- {row['Title']} ({row['Author']} - {row['Year']})")
-        else:
-            st.warning("❌ لم يتم العثور على أي وثائق مطابقة.")
-
         # قائمة اختيار الوثيقة
         titles_list = filtered_data['Title'].tolist()
         selected_title = st.selectbox("📑 اختر الوثيقة:", ["-- اختر وثيقة --"] + titles_list)
@@ -74,16 +66,23 @@ if uploaded_file:
         if selected_title != "-- اختر وثيقة --":
             row = filtered_data[filtered_data['Title'] == selected_title].iloc[0]
 
-            st.image(row['Image'], width=300)
-            st.markdown(f"## 📖 {row['Title']}")
-            st.markdown(f"**✍️ المؤلف:** {row['Author']}")
-            st.markdown(f"**📅 سنة النشر:** {row['Year']}")
-            st.markdown(f"**🏢 الناشر:** {row['Publisher']}")
-            st.markdown(f"**🏷️ المجال:** {row['Field']}")
-            st.markdown(f"**📄 عدد الصفحات:** {row['Pages']}")
-
-            st.markdown("### 📜 النص:")
-            st.write(row['Text'][:1500] + "..." if len(row['Text']) > 1500 else row['Text'])
+            # عرض التفاصيل باتجاه اللغة العربية
+            st.markdown(
+                f"""
+                <div style='text-align: right; direction: rtl; font-family: "Cairo", sans-serif;'>
+                    <img src="{row['Image']}" width="300">
+                    <h2>📖 {row['Title']}</h2>
+                    <p><b>✍️ المؤلف:</b> {row['Author']}</p>
+                    <p><b>📅 سنة النشر:</b> {row['Year']}</p>
+                    <p><b>🏢 الناشر:</b> {row['Publisher']}</p>
+                    <p><b>🏷️ المجال:</b> {row['Field']}</p>
+                    <p><b>📄 عدد الصفحات:</b> {row['Pages']}</p>
+                    <h3>📜 النص:</h3>
+                    <p>{row['Text'][:1500] + "..." if len(row['Text']) > 1500 else row['Text']}</p>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
 
             safe_title = "".join(c for c in row['Title'] if c.isalnum() or c in (' ', '_', '-')).rstrip()
             audio_file = f"audio_files/{safe_title}.mp3"
@@ -96,4 +95,3 @@ if uploaded_file:
 
 else:
     st.info("📄 يرجى رفع ملف CSV للبدء في استعراض المكتبة.")
-
