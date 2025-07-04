@@ -3,15 +3,16 @@ import pandas as pd
 from gtts import gTTS
 import os
 
-# إعداد الصفحة مع خلفية مناسبة
+# إعداد الصفحة
 st.set_page_config(page_title="📚 مكتبة التراث الصوتية", layout="wide")
 
-# إضافة لون خلفية شامل للصفحة
+# تغيير لون خلفية الصفحة بالكامل إلى أسود داكن
 st.markdown(
     """
     <style>
     body {
-        background-color: #F4F1EE; /* لون بيج فاتح مريح للعين */
+        background-color: #121212;  /* أسود داكن */
+        color: #FFFFFF;             /* نص أبيض */
     }
     </style>
     """,
@@ -83,7 +84,7 @@ with col_select:
     titles_list = filtered_data['Title'].tolist()
     selected_title = st.selectbox("📑 اختر الوثيقة:", ["-- اختر وثيقة --"] + titles_list)
 
-# ========== عمود عرض النتائج مع خلفية غامقة ==========
+# ========== عمود عرض النتائج مع خلفية رمادية داكنة ==========
 with col_content:
     if selected_title != "-- اختر وثيقة --":
         row = filtered_data[filtered_data['Title'] == selected_title].iloc[0]
@@ -91,17 +92,17 @@ with col_content:
         st.markdown(
             f"""
             <div style='
-                background-color: #424242;  /* لون غامق أنيق */
-                color: #FFFFFF;              /* لون النص أبيض للوضوح */
+                background-color: #333333;  /* رمادي داكن */
+                color: #FFFFFF;              /* نص أبيض */
                 padding: 20px;
                 border-radius: 12px;
-                border: 2px solid #757575;   /* لون الإطار */
-                box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+                border: 2px solid #555555;   /* لون إطار أفتح قليلاً */
+                box-shadow: 0 4px 12px rgba(0,0,0,0.4);
                 text-align: right;
                 direction: rtl;
                 font-family: "Cairo", sans-serif;
             '>
-                <img src="{row['Image']}" width="300" style="display: block; margin: auto; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); margin-bottom: 15px;">
+                <img src="{row['Image']}" width="300" style="display: block; margin: auto; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); margin-bottom: 15px;">
                 <h2 style="text-align: center;">📖 {row['Title']}</h2>
                 <p><b>✍️ المؤلف:</b> {row['Author']}</p>
                 <p><b>📅 سنة النشر:</b> {row['Year']}</p>
