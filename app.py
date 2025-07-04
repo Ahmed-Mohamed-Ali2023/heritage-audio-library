@@ -36,29 +36,24 @@ with st.spinner("📥 تجهيز الملفات الصوتية..."):
             tts.save(filename)
 st.success("✅ الملفات الصوتية جاهزة.")
 
-# ========== إضافة CSS لتلوين عمود البحث ==========
-st.markdown(
-    """
-    <style>
-    .search-column {
-        background-color: #E3F2FD;
-        padding: 20px;
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-        height: 100%;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
-
 # ========== تقسيم الأعمدة ==========
 col_content, col_select = st.columns([3, 1], gap="large")
 
-# ========== عمود البحث مع الخلفية ==========
+# ========== عمود البحث مع خلفية كاملة ==========
 with col_select:
     with st.container():
-        st.markdown("<div class='search-column'>", unsafe_allow_html=True)
+        st.markdown(
+            """
+            <div style='
+                background-color: #FFF3E0;  /* اللون البرتقالي الفاتح، يمكن تغييره */
+                padding: 20px;
+                border-radius: 12px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+                height: 100%;
+            '>
+            """,
+            unsafe_allow_html=True
+        )
 
         st.markdown("## 🔍 البحث والاختيار")
 
