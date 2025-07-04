@@ -34,16 +34,39 @@ if uploaded_file:
 
     with col_select:
         st.markdown("## 🔍 البحث والاختيار")
-        search_query = st.text_input("🔎 ابحث في العنوان أو المؤلف:")
 
-        if search_query:
-            filtered_data = data[
-                data['Title'].str.contains(search_query, case=False, na=False) |
-                data['Author'].str.contains(search_query, case=False, na=False)
-            ]
+        # مربع البحث + زر البحث الصغير
+        search_col1, search_col2 = st.columns([3, 1])
+        search_query = search_col1.text_input("🔎 ابحث في العنوان أو المؤلف:", label_visibility="collapsed", placeholder="ابحث هنا...")
+        search_button = search_col2.button("🔍 بحث")
+
+        # عند الضغط على زر البحث
+        if "filtered_data" not in st.session_state:
+            st.session_state.filtered_data = data
+
+        if search_button:
+            if search_query.strip():
+                filtered_data = data[
+                    data['Title'].str.contains(search_query, case=False, na=False) |
+                    data['Author'].str.contains(search_query, case=False, na=False)
+                ]
+                st.session_state.filtered_data = filtered_data
+                st.success(f"✅ تم العثور على {len(filtered_data)} وثيقة مطابقة.")
+            else:
+                st.session_state.filtered_data = data
+                st.info("ℹ️ لم يتم إدخال كلمة بحث، يتم عرض جميع الوثائق.")
+
+        filtered_data = st.session_state.filtered_data
+
+        # عرض قائمة الوثائق أسفل البحث مباشرة
+        if not filtered_data.empty:
+            with st.expander("📄 الوثائق المتاحة بعد البحث (انقر للاطلاع):", expanded=True):
+                for idx, row in filtered_data.iterrows():
+                    st.markdown(f"- {row['Title']} ({row['Author']} - {row['Year']})")
         else:
-            filtered_data = data
+            st.warning("❌ لم يتم العثور على أي وثائق مطابقة.")
 
+        # قائمة اختيار الوثيقة
         titles_list = filtered_data['Title'].tolist()
         selected_title = st.selectbox("📑 اختر الوثيقة:", ["-- اختر وثيقة --"] + titles_list)
 
