@@ -66,12 +66,12 @@ if uploaded_file:
         if selected_title != "-- اختر وثيقة --":
             row = filtered_data[filtered_data['Title'] == selected_title].iloc[0]
 
-            # عرض التفاصيل باتجاه اللغة العربية
+            # عرض التفاصيل مع صورة في المنتصف
             st.markdown(
                 f"""
                 <div style='text-align: right; direction: rtl; font-family: "Cairo", sans-serif;'>
-                    <img src="{row['Image']}" width="300">
-                    <h2>📖 {row['Title']}</h2>
+                    <img src="{row['Image']}" width="300" style="display: block; margin: auto; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                    <h2 style="text-align: center;">📖 {row['Title']}</h2>
                     <p><b>✍️ المؤلف:</b> {row['Author']}</p>
                     <p><b>📅 سنة النشر:</b> {row['Year']}</p>
                     <p><b>🏢 الناشر:</b> {row['Publisher']}</p>
