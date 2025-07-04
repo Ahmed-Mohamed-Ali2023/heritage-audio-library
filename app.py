@@ -6,7 +6,7 @@ import os
 # إعداد الصفحة
 st.set_page_config(page_title="📚 مكتبة التراث الصوتية", layout="wide")
 
-# إعداد الخطوط والألوان
+# الخط والتنسيق العام
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
@@ -16,16 +16,22 @@ st.markdown("""
         text-align: right;
     }
     .title {
-        color: #1565C0;
-        font-size: 32px;
+        color: #0D47A1;
+        font-size: 36px;
         font-weight: 700;
+        text-align: center;
+        margin-bottom: 10px;
+    }
+    .sub-title {
+        color: #1565C0;
+        font-size: 18px;
         text-align: center;
     }
     .card {
         background-color: #ffffff;
         border-radius: 12px;
-        padding: 20px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        padding: 25px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.08);
         margin-top: 10px;
     }
     .stButton button {
@@ -34,14 +40,20 @@ st.markdown("""
         border-radius: 8px;
         padding: 0.5em 1em;
     }
+    .info-item {
+        background-color: #E3F2FD;
+        padding: 8px;
+        border-radius: 8px;
+        margin-bottom: 5px;
+    }
     </style>
 """, unsafe_allow_html=True)
 
 # العنوان الرئيسي
 st.markdown("<p class='title'>📚 مكتبة التراث الصوتية</p>", unsafe_allow_html=True)
-st.markdown("### استعرض الوثائق بسهولة واستمع للنص مباشرة.")
+st.markdown("<p class='sub-title'>استعرض الوثائق بسهولة واستمع للنص مباشرة</p>", unsafe_allow_html=True)
 
-# رابط CSV من GitHub
+# رابط CSV
 csv_url = "https://raw.githubusercontent.com/Ahmed-Mohamed-Ali2023/heritage-audio-library/refs/heads/main/heritage_texts.csv"
 
 # تحميل البيانات
@@ -69,10 +81,10 @@ with st.spinner("📥 تجهيز الملفات الصوتية..."):
             tts.save(filename)
 st.success("✅ الملفات الصوتية جاهزة.")
 
-# تقسيم الأعمدة: البحث (يمين) والنتائج (يسار)
+# تقسيم الأعمدة: عمود البحث (يمين) والنتائج (يسار)
 col_select, col_content = st.columns([1, 3], gap="large")
 
-# ==== عمود البحث على اليمين ====
+# ==== عمود البحث - على اليمين ====
 with col_select:
     st.markdown("""
         <div style='background-color: #E3F2FD; padding: 20px; border-radius: 10px;'>
@@ -105,24 +117,24 @@ with col_select:
 
     st.markdown("</div>", unsafe_allow_html=True)
 
-# ==== عمود النتائج على اليسار ====
+# ==== عمود النتائج - على اليسار ====
 with col_content:
     if selected_title != "-- اختر وثيقة --":
         row = filtered_data[filtered_data['Title'] == selected_title].iloc[0]
         safe_title = "".join(c for c in row['Title'] if c.isalnum() or c in (' ', '_', '-')).rstrip()
         audio_file = f"audio_files/{safe_title}.mp3"
 
-        # بطاقة عرض أنيقة
+        # بطاقة عرض جذابة
         st.markdown(f"""
             <div class='card'>
-                <img src="{row['Image']}" width="100%" style="border-radius: 10px; max-height: 300px; object-fit: cover; margin-bottom: 10px;">
+                <img src="{row['Image']}" width="100%" style="border-radius: 10px; max-height: 300px; object-fit: cover; margin-bottom: 15px;">
                 <h2 style="color:#0D47A1; text-align:center;">📖 {row['Title']}</h2>
-                <p><b>✍️ المؤلف:</b> {row['Author']}</p>
-                <p><b>📅 سنة النشر:</b> {row['Year']}</p>
-                <p><b>🏢 الناشر:</b> {row['Publisher']}</p>
-                <p><b>🏷️ المجال:</b> {row['Field']}</p>
-                <p><b>📄 عدد الصفحات:</b> {row['Pages']}</p>
-                <h4>📜 النص:</h4>
+                <div class="info-item"><b>✍️ المؤلف:</b> {row['Author']}</div>
+                <div class="info-item"><b>📅 سنة النشر:</b> {row['Year']}</div>
+                <div class="info-item"><b>🏢 الناشر:</b> {row['Publisher']}</div>
+                <div class="info-item"><b>🏷️ المجال:</b> {row['Field']}</div>
+                <div class="info-item"><b>📄 عدد الصفحات:</b> {row['Pages']}</div>
+                <h4 style="color:#1565C0;">📜 النص:</h4>
                 <p>{row['Text'][:1500] + "..." if len(row['Text']) > 1500 else row['Text']}</p>
             </div>
         """, unsafe_allow_html=True)
