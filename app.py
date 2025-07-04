@@ -3,7 +3,6 @@ import pandas as pd
 from gtts import gTTS
 import os
 
-# إعداد الصفحة
 st.set_page_config(page_title="📚 مكتبة التراث الصوتية", layout="wide")
 st.title("📚 مكتبة التراث الصوتية")
 st.markdown("### استعرض الوثائق بسهولة واستمع للنص مباشرة.")
@@ -39,63 +38,51 @@ st.success("✅ الملفات الصوتية جاهزة.")
 # ========== تقسيم الأعمدة ==========
 col_content, col_select = st.columns([3, 1], gap="large")
 
-# ========== عمود البحث مع خلفية كاملة ==========
 with col_select:
-    with st.container():
-        st.markdown(
-            """
-            <div style='
-                background-color: #FFF3E0;  /* اللون البرتقالي الفاتح، يمكن تغييره */
-                padding: 20px;
-                border-radius: 12px;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-                height: 100%;
-            '>
-            """,
-            unsafe_allow_html=True
-        )
+    st.markdown("## 🔍 البحث والاختيار")
 
-        st.markdown("## 🔍 البحث والاختيار")
+    search_col1, search_col2 = st.columns([3, 1])
+    search_query = search_col1.text_input("🔎 ابحث في العنوان أو المؤلف:", label_visibility="collapsed", placeholder="اكتب كلمة للبحث...")
+    search_button = search_col2.button("🔍 بحث")
 
-        search_col1, search_col2 = st.columns([3, 1])
-        search_query = search_col1.text_input(
-            "🔎 ابحث في العنوان أو المؤلف:",
-            label_visibility="collapsed",
-            placeholder="اكتب كلمة للبحث..."
-        )
-        search_button = search_col2.button("🔍 بحث")
+    if "filtered_data" not in st.session_state:
+        st.session_state.filtered_data = data
 
-        if "filtered_data" not in st.session_state:
+    if search_button:
+        if search_query.strip():
+            filtered_data = data[
+                data['Title'].str.contains(search_query, case=False, na=False) |
+                data['Author'].str.contains(search_query, case=False, na=False)
+            ]
+            st.session_state.filtered_data = filtered_data
+            st.success(f"✅ تم العثور على {len(filtered_data)} وثيقة مطابقة.")
+        else:
             st.session_state.filtered_data = data
+            st.info("ℹ️ لم يتم إدخال كلمة بحث، يتم عرض جميع الوثائق.")
 
-        if search_button:
-            if search_query.strip():
-                filtered_data = data[
-                    data['Title'].str.contains(search_query, case=False, na=False) |
-                    data['Author'].str.contains(search_query, case=False, na=False)
-                ]
-                st.session_state.filtered_data = filtered_data
-                st.success(f"✅ تم العثور على {len(filtered_data)} وثيقة مطابقة.")
-            else:
-                st.session_state.filtered_data = data
-                st.info("ℹ️ لم يتم إدخال كلمة بحث، يتم عرض جميع الوثائق.")
+    filtered_data = st.session_state.filtered_data
 
-        filtered_data = st.session_state.filtered_data
+    titles_list = filtered_data['Title'].tolist()
+    selected_title = st.selectbox("📑 اختر الوثيقة:", ["-- اختر وثيقة --"] + titles_list)
 
-        titles_list = filtered_data['Title'].tolist()
-        selected_title = st.selectbox("📑 اختر الوثيقة:", ["-- اختر وثيقة --"] + titles_list)
-
-        st.markdown("</div>", unsafe_allow_html=True)
-
-# ========== عمود عرض النتائج ==========
+# ========== عمود عرض النتائج مع الخلفية ==========
 with col_content:
     if selected_title != "-- اختر وثيقة --":
         row = filtered_data[filtered_data['Title'] == selected_title].iloc[0]
 
         st.markdown(
             f"""
-            <div style='text-align: right; direction: rtl; font-family: "Cairo", sans-serif;'>
-                <img src="{row['Image']}" width="300" style="display: block; margin: auto; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+            <div style='
+                background-color: #F1F8E9;  /* لون أخضر فاتح مريح، يمكن تغييره */
+                padding: 20px;
+                border-radius: 12px;
+                border: 2px solid #C5E1A5;  /* لون الإطار */
+                box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+                text-align: right;
+                direction: rtl;
+                font-family: "Cairo", sans-serif;
+            '>
+                <img src="{row['Image']}" width="300" style="display: block; margin: auto; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 15px;">
                 <h2 style="text-align: center;">📖 {row['Title']}</h2>
                 <p><b>✍️ المؤلف:</b> {row['Author']}</p>
                 <p><b>📅 سنة النشر:</b> {row['Year']}</p>
