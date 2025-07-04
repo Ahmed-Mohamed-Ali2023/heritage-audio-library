@@ -3,6 +3,7 @@ import pandas as pd
 from gtts import gTTS
 import os
 
+# إعداد الصفحة
 st.set_page_config(page_title="📚 مكتبة التراث الصوتية", layout="wide")
 st.title("📚 مكتبة التراث الصوتية")
 st.markdown("### استعرض الوثائق بسهولة واستمع للنص مباشرة.")
@@ -38,11 +39,32 @@ st.success("✅ الملفات الصوتية جاهزة.")
 # ========== تقسيم الأعمدة ==========
 col_content, col_select = st.columns([3, 1], gap="large")
 
+# ========== عمود البحث مع الخلفية المميزة ==========
 with col_select:
+    st.markdown(
+        """
+        <div style='
+            background-color: #E3F2FD;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+        '>
+        """, 
+        unsafe_allow_html=True
+    )
+
     st.markdown("## 🔍 البحث والاختيار")
 
     search_col1, search_col2 = st.columns([3, 1])
-    search_query = search_col1.text_input("🔎 ابحث في العنوان أو المؤلف:", label_visibility="collapsed", placeholder="اكتب كلمة للبحث...")
+    search_query = search_col1.text_input(
+        "🔎 ابحث في العنوان أو المؤلف:",
+        label_visibility="collapsed",
+        placeholder="اكتب كلمة للبحث..."
+    )
     search_button = search_col2.button("🔍 بحث")
 
     if "filtered_data" not in st.session_state:
@@ -65,6 +87,9 @@ with col_select:
     titles_list = filtered_data['Title'].tolist()
     selected_title = st.selectbox("📑 اختر الوثيقة:", ["-- اختر وثيقة --"] + titles_list)
 
+    st.markdown("</div>", unsafe_allow_html=True)
+
+# ========== عمود عرض النتائج ==========
 with col_content:
     if selected_title != "-- اختر وثيقة --":
         row = filtered_data[filtered_data['Title'] == selected_title].iloc[0]
