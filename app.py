@@ -36,58 +36,61 @@ with st.spinner("📥 تجهيز الملفات الصوتية..."):
             tts.save(filename)
 st.success("✅ الملفات الصوتية جاهزة.")
 
+# ========== إضافة CSS لتلوين عمود البحث ==========
+st.markdown(
+    """
+    <style>
+    .search-column {
+        background-color: #E3F2FD;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        height: 100%;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 # ========== تقسيم الأعمدة ==========
 col_content, col_select = st.columns([3, 1], gap="large")
 
-# ========== عمود البحث مع الخلفية المميزة ==========
+# ========== عمود البحث مع الخلفية ==========
 with col_select:
-    st.markdown(
-        """
-        <div style='
-            background-color: #E3F2FD;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-        '>
-        """, 
-        unsafe_allow_html=True
-    )
+    with st.container():
+        st.markdown("<div class='search-column'>", unsafe_allow_html=True)
 
-    st.markdown("## 🔍 البحث والاختيار")
+        st.markdown("## 🔍 البحث والاختيار")
 
-    search_col1, search_col2 = st.columns([3, 1])
-    search_query = search_col1.text_input(
-        "🔎 ابحث في العنوان أو المؤلف:",
-        label_visibility="collapsed",
-        placeholder="اكتب كلمة للبحث..."
-    )
-    search_button = search_col2.button("🔍 بحث")
+        search_col1, search_col2 = st.columns([3, 1])
+        search_query = search_col1.text_input(
+            "🔎 ابحث في العنوان أو المؤلف:",
+            label_visibility="collapsed",
+            placeholder="اكتب كلمة للبحث..."
+        )
+        search_button = search_col2.button("🔍 بحث")
 
-    if "filtered_data" not in st.session_state:
-        st.session_state.filtered_data = data
-
-    if search_button:
-        if search_query.strip():
-            filtered_data = data[
-                data['Title'].str.contains(search_query, case=False, na=False) |
-                data['Author'].str.contains(search_query, case=False, na=False)
-            ]
-            st.session_state.filtered_data = filtered_data
-            st.success(f"✅ تم العثور على {len(filtered_data)} وثيقة مطابقة.")
-        else:
+        if "filtered_data" not in st.session_state:
             st.session_state.filtered_data = data
-            st.info("ℹ️ لم يتم إدخال كلمة بحث، يتم عرض جميع الوثائق.")
 
-    filtered_data = st.session_state.filtered_data
+        if search_button:
+            if search_query.strip():
+                filtered_data = data[
+                    data['Title'].str.contains(search_query, case=False, na=False) |
+                    data['Author'].str.contains(search_query, case=False, na=False)
+                ]
+                st.session_state.filtered_data = filtered_data
+                st.success(f"✅ تم العثور على {len(filtered_data)} وثيقة مطابقة.")
+            else:
+                st.session_state.filtered_data = data
+                st.info("ℹ️ لم يتم إدخال كلمة بحث، يتم عرض جميع الوثائق.")
 
-    titles_list = filtered_data['Title'].tolist()
-    selected_title = st.selectbox("📑 اختر الوثيقة:", ["-- اختر وثيقة --"] + titles_list)
+        filtered_data = st.session_state.filtered_data
 
-    st.markdown("</div>", unsafe_allow_html=True)
+        titles_list = filtered_data['Title'].tolist()
+        selected_title = st.selectbox("📑 اختر الوثيقة:", ["-- اختر وثيقة --"] + titles_list)
+
+        st.markdown("</div>", unsafe_allow_html=True)
 
 # ========== عمود عرض النتائج ==========
 with col_content:
