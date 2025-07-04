@@ -7,11 +7,13 @@ st.set_page_config(page_title="📚 مكتبة التراث الصوتية", lay
 st.title("📚 مكتبة التراث الصوتية")
 st.markdown("### استعرض الوثائق بسهولة واستمع للنص مباشرة.")
 
-# رابط الملف الخام على GitHub (استبدل USERNAME وREPO باسم حسابك ومستودعك)
-url = "https://raw.githubusercontent.com/USERNAME/REPO/main/heritage_texts.csv"
+uploaded_file = st.file_uploader(
+    "📂 قم برفع ملف CSV يحتوي على الأعمدة (Title, Text, Author, Year, Image, Pages, Publisher, Field)",
+    type=['csv']
+)
 
-try:
-    data = pd.read_csv(url)
+if uploaded_file:
+    data = pd.read_csv(uploaded_file)
 
     if not os.path.exists('audio_files'):
         os.makedirs('audio_files')
@@ -25,7 +27,7 @@ try:
             if not os.path.exists(filename):
                 tts = gTTS(text, lang='ar')
                 tts.save(filename)
-    st.success("✅ الملفات الصوتية جاهزة للاستخدام.")
+    st.success("✅ الملفات الصوتية جاهزة.")
 
     # تقسيم الأعمدة: content | قائمة البحث
     col_content, col_select = st.columns([3, 1], gap="large")
@@ -38,6 +40,7 @@ try:
         search_query = search_col1.text_input("🔎 ابحث في العنوان أو المؤلف:", label_visibility="collapsed", placeholder="اكتب كلمة للبحث...")
         search_button = search_col2.button("🔍 بحث")
 
+        # عند الضغط على زر البحث
         if "filtered_data" not in st.session_state:
             st.session_state.filtered_data = data
 
@@ -55,6 +58,7 @@ try:
 
         filtered_data = st.session_state.filtered_data
 
+        # قائمة اختيار الوثيقة
         titles_list = filtered_data['Title'].tolist()
         selected_title = st.selectbox("📑 اختر الوثيقة:", ["-- اختر وثيقة --"] + titles_list)
 
@@ -62,6 +66,7 @@ try:
         if selected_title != "-- اختر وثيقة --":
             row = filtered_data[filtered_data['Title'] == selected_title].iloc[0]
 
+            # عرض التفاصيل مع صورة في المنتصف
             st.markdown(
                 f"""
                 <div style='text-align: right; direction: rtl; font-family: "Cairo", sans-serif;'>
@@ -88,6 +93,5 @@ try:
         else:
             st.info("📑 اختر وثيقة من القائمة اليمنى للاطلاع على التفاصيل.")
 
-except Exception as e:
-    st.error(f"❌ حدث خطأ أثناء تحميل البيانات: {e}")
-    st.info("💡 تأكد من رفع الملف داخل المستودع على GitHub بالمسار الصحيح وأن الرابط صحيح.")
+else:
+    st.info("📄 يرجى رفع ملف CSV للبدء في استعراض المكتبة.")
