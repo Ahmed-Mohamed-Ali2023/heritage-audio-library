@@ -39,11 +39,6 @@ st.success("✅ الملفات الصوتية جاهزة.")
 col_content, col_select = st.columns([3, 1], gap="large")
 
 with col_select:
-    # ======= تحسين مظهر عمود البحث =======
-    st.markdown("""
-    <div style='background-color: #E3F2FD; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);'>
-    """, unsafe_allow_html=True)
-
     st.markdown("## 🔍 البحث والاختيار")
 
     search_col1, search_col2 = st.columns([3, 1])
@@ -69,8 +64,6 @@ with col_select:
 
     titles_list = filtered_data['Title'].tolist()
     selected_title = st.selectbox("📑 اختر الوثيقة:", ["-- اختر وثيقة --"] + titles_list)
-
-    st.markdown("</div>", unsafe_allow_html=True)  # إغلاق الصندوق الملون
 
 with col_content:
     if selected_title != "-- اختر وثيقة --":
