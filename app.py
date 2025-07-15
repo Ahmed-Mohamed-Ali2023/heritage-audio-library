@@ -40,28 +40,24 @@ if search_query.strip():
 else:
     filtered_data = data
 
-# قائمة اختيار الوثيقة
-titles_list = filtered_data['Title'].tolist()
-selected_title = st.selectbox("📑 اختر الوثيقة:", ["-- اختر وثيقة --"] + titles_list)
+# عرض النتائج مباشرة دون قائمة منسدلة
+if not filtered_data.empty:
+    for idx, row in filtered_data.iterrows():
+        st.write(f"### 📖 {row['Title']}")
+        st.write(f"**✍️ المؤلف:** {row['Author']}")
+        st.write(f"**📅 سنة النشر:** {row['Year']}")
+        st.write(f"**🏢 الناشر:** {row['Publisher']}")
+        st.write(f"**🏷️ المجال:** {row['Field']}")
+        st.write(f"**📄 عدد الصفحات:** {row['Pages']}")
+        st.write("### 📜 النص:")
+        st.write(row['Text'][:1000] + "..." if len(row['Text']) > 1000 else row['Text'])
 
-# عرض الوثيقة
-if selected_title != "-- اختر وثيقة --":
-    row = filtered_data[filtered_data['Title'] == selected_title].iloc[0]
-
-    st.write(f"### 📖 {row['Title']}")
-    st.write(f"**✍️ المؤلف:** {row['Author']}")
-    st.write(f"**📅 سنة النشر:** {row['Year']}")
-    st.write(f"**🏢 الناشر:** {row['Publisher']}")
-    st.write(f"**🏷️ المجال:** {row['Field']}")
-    st.write(f"**📄 عدد الصفحات:** {row['Pages']}")
-    st.write("### 📜 النص:")
-    st.write(row['Text'][:1000] + "..." if len(row['Text']) > 1000 else row['Text'])
-
-    safe_title = "".join(c for c in row['Title'] if c.isalnum() or c in (' ', '_', '-')).rstrip()
-    audio_file = f"audio_files/{safe_title}.mp3"
-    if os.path.exists(audio_file):
-        st.audio(audio_file, format="audio/mp3")
-    else:
-        st.warning("⚠️ الملف الصوتي غير متوفر.")
+        safe_title = "".join(c for c in row['Title'] if c.isalnum() or c in (' ', '_', '-')).rstrip()
+        audio_file = f"audio_files/{safe_title}.mp3"
+        if os.path.exists(audio_file):
+            st.audio(audio_file, format="audio/mp3")
+        else:
+            st.warning("⚠️ الملف الصوتي غير متوفر.")
+        st.markdown("---")
 else:
-    st.info("📑 اختر وثيقة من القائمة للاطلاع على التفاصيل.")
+    st.info("📑 لم يتم العثور على وثائق مطابقة، حاول إدخال كلمة أخرى للبحث.")
