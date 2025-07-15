@@ -3,54 +3,88 @@ import pandas as pd
 from gtts import gTTS
 import os
 
+st.set_page_config(page_title="📚 مكتبة التراث الصوتية", layout="wide")
 st.title("📚 مكتبة التراث الصوتية")
-st.markdown("### استعرض الوثائق واستمع للنص مباشرة.")
+st.markdown("### استعرض الوثائق بسهولة واستمع للنص مباشرة.")
 
-# رابط الملف من GitHub بصيغة RAW
+# ========= رابط الملف من GitHub بصيغة RAW ==========
 csv_url = "https://raw.githubusercontent.com/Ahmed-Mohamed-Ali2023/heritage-audio-library/refs/heads/main/heritage_texts.csv"
 
-# قراءة البيانات
-try:
-    data = pd.read_csv(csv_url)
-    st.success("✅ تم تحميل البيانات بنجاح.")
-except Exception as e:
-    st.error(f"❌ خطأ أثناء تحميل البيانات: {e}")
-    st.stop()
+# ========== قراءة الملف ==========
+with st.spinner("📥 يتم تحميل البيانات من GitHub..."):
+    try:
+        data = pd.read_csv(csv_url)
+        st.success("✅ تم تحميل البيانات بنجاح.")
+    except Exception as e:
+        st.error(f"❌ حدث خطأ أثناء تحميل البيانات: {e}")
+        st.stop()
 
-# إنشاء مجلد للملفات الصوتية
+# ========== إنشاء مجلد الملفات الصوتية ==========
 if not os.path.exists('audio_files'):
     os.makedirs('audio_files')
 
-# توليد الملفات الصوتية إن لم تكن موجودة
-for idx, row in data.iterrows():
-    title = row['Title']
-    text = str(row['Text'])[:3000]
-    safe_title = "".join(c for c in title if c.isalnum() or c in (' ', '_', '-')).rstrip()
-    filename = f"audio_files/{safe_title}.mp3"
-    if not os.path.exists(filename):
-        tts = gTTS(text, lang='ar')
-        tts.save(filename)
+# ========== توليد الملفات الصوتية إن لم تكن موجودة ==========
+with st.spinner("📥 تجهيز الملفات الصوتية..."):
+    for idx, row in data.iterrows():
+        title = row['Title']
+        text = str(row['Text'])[:3000]
+        safe_title = "".join(c for c in title if c.isalnum() or c in (' ', '_', '-')).rstrip()
+        filename = f"audio_files/{safe_title}.mp3"
+        if not os.path.exists(filename):
+            tts = gTTS(text, lang='ar')
+            tts.save(filename)
+st.success("✅ الملفات الصوتية جاهزة.")
 
-# واجهة البحث (يعتمد على الضغط Enter فقط)
-search_query = st.text_input("🔎 ابحث في العنوان:", placeholder="اكتب كلمة للبحث...")
+# ========== تقسيم الأعمدة ==========
+col_content, col_select = st.columns([3, 1], gap="large")
 
-# تصفية البيانات بالعنوان فقط
-if search_query.strip():
-    filtered_data = data[data['Title'].str.contains(search_query, case=False, na=False)]
-else:
-    filtered_data = data
+with col_select:
+    st.markdown("## 🔍 البحث والاختيار")
 
-# عرض النتائج مباشرة دون قائمة منسدلة
-if not filtered_data.empty:
-    for idx, row in filtered_data.iterrows():
-        st.write(f"### 📖 {row['Title']}")
-        st.write(f"**✍️ المؤلف:** {row['Author']}")
-        st.write(f"**📅 سنة النشر:** {row['Year']}")
-        st.write(f"**🏢 الناشر:** {row['Publisher']}")
-        st.write(f"**🏷️ المجال:** {row['Field']}")
-        st.write(f"**📄 عدد الصفحات:** {row['Pages']}")
-        st.write("### 📜 النص:")
-        st.write(row['Text'][:1000] + "..." if len(row['Text']) > 1000 else row['Text'])
+    search_col1, search_col2 = st.columns([3, 1])
+    search_query = search_col1.text_input("🔎 ابحث في العنوان أو المؤلف:", label_visibility="collapsed", placeholder="اكتب كلمة للبحث...")
+    search_button = search_col2.button("🔍 بحث")
+
+    if "filtered_data" not in st.session_state:
+        st.session_state.filtered_data = data
+
+    if search_button:
+        if search_query.strip():
+            filtered_data = data[
+                data['Title'].str.contains(search_query, case=False, na=False) |
+                data['Author'].str.contains(search_query, case=False, na=False)
+            ]
+            st.session_state.filtered_data = filtered_data
+            st.success(f"✅ تم العثور على {len(filtered_data)} وثيقة مطابقة.")
+        else:
+            st.session_state.filtered_data = data
+            st.info("ℹ️ لم يتم إدخال كلمة بحث، يتم عرض جميع الوثائق.")
+
+    filtered_data = st.session_state.filtered_data
+
+    titles_list = filtered_data['Title'].tolist()
+    selected_title = st.selectbox("📑 اختر الوثيقة:", ["-- اختر وثيقة --"] + titles_list)
+
+with col_content:
+    if selected_title != "-- اختر وثيقة --":
+        row = filtered_data[filtered_data['Title'] == selected_title].iloc[0]
+
+        st.markdown(
+            f"""
+            <div style='text-align: right; direction: rtl; font-family: "Cairo", sans-serif;'>
+                <img src="{row['Image']}" width="300" style="display: block; margin: auto; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                <h2 style="text-align: center;">📖 {row['Title']}</h2>
+                <p><b>✍️ المؤلف:</b> {row['Author']}</p>
+                <p><b>📅 سنة النشر:</b> {row['Year']}</p>
+                <p><b>🏢 الناشر:</b> {row['Publisher']}</p>
+                <p><b>🏷️ المجال:</b> {row['Field']}</p>
+                <p><b>📄 عدد الصفحات:</b> {row['Pages']}</p>
+                <h3>📜 النص:</h3>
+                <p>{row['Text'][:1500] + "..." if len(row['Text']) > 1500 else row['Text']}</p>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
 
         safe_title = "".join(c for c in row['Title'] if c.isalnum() or c in (' ', '_', '-')).rstrip()
         audio_file = f"audio_files/{safe_title}.mp3"
@@ -58,6 +92,5 @@ if not filtered_data.empty:
             st.audio(audio_file, format="audio/mp3")
         else:
             st.warning("⚠️ الملف الصوتي غير متوفر.")
-        st.markdown("---")
-else:
-    st.info("📑 لم يتم العثور على وثائق مطابقة، حاول إدخال كلمة أخرى للبحث.")
+    else:
+        st.info("📑 اختر وثيقة من القائمة اليمنى للاطلاع على التفاصيل.")
