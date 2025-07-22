@@ -31,8 +31,9 @@ with st.spinner("📥 تجهيز الملفات الصوتية..."):
         safe_title = "".join(c for c in title if c.isalnum() or c in (' ', '_', '-')).rstrip()
         filename = f"audio_files/{safe_title}.mp3"
         if not os.path.exists(filename):
-            tts = gTTS(text, lang='ar')
-            tts.save(filename)
+    os.makedirs(os.path.dirname(filename), exist_ok=True)
+    tts = gTTS(text, lang='ar')
+    tts.save(filename)
 st.success("✅ الملفات الصوتية جاهزة.")
 
 # ========== تقسيم الأعمدة ==========
