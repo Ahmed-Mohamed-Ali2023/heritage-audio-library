@@ -19,20 +19,26 @@ with st.spinner("📥 يتم تحميل البيانات من GitHub..."):
         st.error(f"❌ حدث خطأ أثناء تحميل البيانات: {e}")
         st.stop()
 
-# ========== إنشاء مجلد الملفات الصوتية ==========
-if not os.path.exists('audio_files'):
-    os.makedirs('audio_files')
-
 # ========== توليد الملفات الصوتية إن لم تكن موجودة ==========
 with st.spinner("📥 تجهيز الملفات الصوتية..."):
     for idx, row in data.iterrows():
-        title = row['Title']
+        title = str(row['Title'])
         text = str(row['Text'])[:3000]
+
+        if not text.strip():
+            st.warning(f"⚠️ النص فارغ في السطر {idx+1}، تم تخطيه.")
+            continue
+
         safe_title = "".join(c for c in title if c.isalnum() or c in (' ', '_', '-')).rstrip()
-        filename = f"audio_files/{safe_title}.mp3"
+        filename = f"/tmp/{safe_title}.mp3"
+
         if not os.path.exists(filename):
-            tts = gTTS(text, lang='ar')
-            tts.save(filename)
+            try:
+                tts = gTTS(text, lang='ar')
+                tts.save(filename)
+            except Exception as e:
+                st.warning(f"⚠️ تعذر إنشاء الملف الصوتي للعنوان '{title}'، تم تخطيه.")
+
 st.success("✅ الملفات الصوتية جاهزة.")
 
 # ========== تقسيم الأعمدة ==========
@@ -42,7 +48,11 @@ with col_select:
     st.markdown("## 🔍 البحث والاختيار")
 
     search_col1, search_col2 = st.columns([3, 1])
-    search_query = search_col1.text_input("🔎 ابحث في العنوان أو المؤلف:", label_visibility="collapsed", placeholder="اكتب كلمة للبحث...")
+    search_query = search_col1.text_input(
+        "🔎 ابحث في العنوان أو المؤلف:",
+        label_visibility="collapsed",
+        placeholder="اكتب كلمة للبحث..."
+    )
     search_button = search_col2.button("🔍 بحث")
 
     if "filtered_data" not in st.session_state:
@@ -87,7 +97,7 @@ with col_content:
         )
 
         safe_title = "".join(c for c in row['Title'] if c.isalnum() or c in (' ', '_', '-')).rstrip()
-        audio_file = f"audio_files/{safe_title}.mp3"
+        audio_file = f"/tmp/{safe_title}.mp3"
         if os.path.exists(audio_file):
             st.audio(audio_file, format="audio/mp3")
         else:
