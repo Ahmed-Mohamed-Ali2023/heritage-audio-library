@@ -4,8 +4,8 @@ from gtts import gTTS
 import os
 
 st.set_page_config(page_title="📚 مكتبة التراث الصوتية", layout="wide")
-st.title("📚 مكتبة التراث الصوتية")
-st.markdown("### استعرض الوثائق بسهولة واستمع للنص مباشرة.")
+st.markdown("<h1 style='text-align: center;'>📚 مكتبة التراث الصوتية</h1>", unsafe_allow_html=True)
+st.markdown("<h3 style='text-align: center;'>استعرض الوثائق بسهولة واستمع للنص مباشرة.</h3>", unsafe_allow_html=True)
 
 # ========= رابط الملف من GitHub بصيغة RAW ==========
 csv_url = "https://raw.githubusercontent.com/Ahmed-Mohamed-Ali2023/heritage-audio-library/refs/heads/main/heritage_texts.csv"
