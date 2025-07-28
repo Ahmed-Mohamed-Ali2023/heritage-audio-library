@@ -73,6 +73,7 @@ heritage-audio-library/
 يمكنك إضافة لقطة شاشة للتطبيق هنا بإضافة رابط الصورة بين القوسين:
 
 ![screenshot](link_to_your_screenshot_image)
+<img width="1845" height="724" alt="image" src="https://github.com/user-attachments/assets/55916523-7381-495d-a312-360ba07ed293" />
 
 ---
 
