@@ -75,6 +75,10 @@ heritage-audio-library/
 ![screenshot](link_to_your_screenshot_image)
 <img width="1845" height="724" alt="image" src="https://github.com/user-attachments/assets/55916523-7381-495d-a312-360ba07ed293" />
 
+
+بعد اجراء عملية البحث واختيار احدى الوثائق
+<img width="1895" height="819" alt="image" src="https://github.com/user-attachments/assets/7022bda7-7400-48f8-86f9-f8e5b494cd50" />
+
 ---
 
 ## 📄 الرخصة
