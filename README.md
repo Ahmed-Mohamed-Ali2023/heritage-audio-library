@@ -56,9 +56,14 @@ streamlit run app.py
 
 ```
 .
-├── app.py              # ملف الكود الرئيسي لتشغيل التطبيق
-├── heritage_texts.csv  # ملف CSV يحتوي على الوثائق التراثية
-└── README.md           # هذا الملف
+heritage-audio-library/
+├── app.py                # الكود الرئيسي للتطبيق
+├── heritage_texts.csv    # قاعدة بيانات النصوص التراثية
+├── requirements.txt      # قائمة بالحزم المطلوبة
+├── README.md             # هذا الملف
+├── images/               # مجلد الصور الرئيسي
+└── screenshot.png        # صورة توضيحية للتطبيق
+
 ```
 
 ---
